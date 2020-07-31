@@ -26,7 +26,7 @@ will still have a very positive impact on scaling.
 - We recommend setting the "maxmemory policy" to "volatile-lru" -- in the off-chance Redis runs out of memory it will discard the oldest cache data first -- the application should handle this event gracefully as long as there's some discard policy to allow new keys to be added.
 
 ### AWS Lambda + ElastiCache
-- Before you begin connecting your Lambda instance to a Redis Elasticache, create a security group called `Spoke - Redis` in your VPC. You may have already done this when you [first set up your VPC](#https://github.com/MoveOnOrg/Spoke/blob/main/docs/DEPLOYING_AWS_LAMBDA.md).  
+- Before you begin connecting your Lambda instance to a Redis Elasticache, create a security group called `Spoke - Redis` in your VPC. You may have already done this when you [first set up your VPC](https://github.com/MoveOnOrg/Spoke/blob/main/docs/DEPLOYING_AWS_LAMBDA.md#vpc).  
 - In the ElastiCache console, create a Subnet Group called `spoke-redis-group` with description `Spoke caching subnet group`. Choose the VPC that your Lambda instance exists in. Add all of the VPC's subnets to this group.
 - Create an Redis ElastiCache cluster in the region where your Lambda instance exists. Select the subnet group you just created, `spoke-redis-group`. Choose the security group `Spoke - Redis`.
 - If you deploy with Claudia, **do not set the redis instance url in your json environment**. Claudia will try to connect to the redis endpoint from your local machine but AWS will block it. Instead, once you've deployed with Claudia, modify the environment variables of the Lambda instance within the AWS Lambda console.
