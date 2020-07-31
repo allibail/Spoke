@@ -27,23 +27,21 @@ Walking through all the different AWS resources and configuration that must be i
 
 Spoke needs a domain to run on. In order to configure the API Gateway with this domain we first need to create a certificate.
 
-Waiting for verification for a certificate may take a while so we will start that now. Go to the Certificate Manager service. Request a certificate. Select "public." Add a domain name `spoke.campaign.com`. Choose a validation method (generally the DNS method). Add the verification DNS records to your domain. Wait for the DNS update to propogate and continue with the setup.
+Waiting for verification for a certificate may take a while so we will start that now. Go to the Certificate Manager service. Request a certificate. Select "public." Add a domain name `spoke.{campaign}.com`. Choose a validation method (generally the DNS method). Add the verification DNS records to your domain. Wait for the DNS update to propogate and continue with the setup.
+
+## IAM role
+
+An IAM role is one of the required arguments when deploying with Claudia. Go to the IAM console and click `roles` in the sidebar. Click Create Role, and choose the Lambda use case. Attach permissions policies `AWSLambdaFullAccess` and `AWSRDSFullAccess`. Name your role `SpokeOnLambda`.
 
 ## S3
 
-Create a private S3 bucket by choosing all the default values as you go through the setup wizard. We will call this `textforcampaign`.
+Create a private S3 bucket by choosing all the default values as you go throuh the setup wizard. We will call this `textforcampaign`.
 
 ## VPC
 
 We will create a VPC with two groups of subnets, one publicly accessible one for the RDS instance and one private one for our AWS Lambda function (don't worry, the API Gateway created later will expose the function via the domain you created a certificate for). Each group will have two subnets for redundancy.
 
 Getting the VPC right is pretty tricky. Start by launching the VPC creation wizard and choosing "VPC with a Single Public Subnet". Give the VPC a name, `TextForCampaign`, and change the name of the subnet to `Public - 1`. Click create.
-
-### Subnets
-
-One subnet was already created for us. Take a note of the availability region this was created in. Now create a second public subnet in a different availability region with IPv4 CIDR `10.0.1.0/24`.
-
-Create the two private subnets with CIDR blocks `10.0.2.0/24` and `10.0.3.0/24`. It is important that the private subnets are in different availability regions from each other, but they do not need to be different from the public subnets.
 
 ### NAT Gateway
 
@@ -72,6 +70,14 @@ Then, edit `Spoke - Private`'s routes to connect to the NAT you just created:
 | 10.0.0.0/16 | local             |
 | 0.0.0.0/0   | nat-xxxxxxxxxxxxx |
 ```
+
+### Subnets
+
+One subnet was already created for us. Take a note of the availability region this was created in. Now create a second public subnet in a different availability region with IPv4 CIDR `10.0.1.0/24`.
+
+Create the two private subnets with CIDR blocks `10.0.2.0/24` and `10.0.3.0/24`. It is important that the private subnets are in different availability regions from each other, but they do not need to be different from the public subnets.
+
+Once the four subnets are created, they must each be associated with their respective route tables. Edit the route table association for each of the four subnets, associating `Public - 1` and `Public - 2` with `Spoke - Public`, and `Private - 1` and `Private - 2` with `Spoke - Private`.
 
 ### Security Groups
 
@@ -255,7 +261,7 @@ database calls are not made. In AWS, the easiest way to do this is:
 
 ### Add a Custom Domain
 
-Once Claudia has created an API Gateway we can add a subdomain to access Spoke. Add the custom domain you created the certificate for, selecting that certificate. Add a mapping with a blank path and `spoke`:`latest` for the destination and path.
+Once Claudia has created an API Gateway we can add a subdomain to access Spoke. Add the custom domain you created the certificate for, selecting that certificate. Add a mapping with a blank path and `spoke`:`latest` for the destination and path. Copy the custom API Gateway domain name and create an alias record in your DNS provider, routing the custom domain `spoke.{campaign}.com` to the API Gateway domain name.
 
 ## Updating Code or Environment Variables
 
