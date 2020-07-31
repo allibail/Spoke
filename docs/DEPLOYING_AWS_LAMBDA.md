@@ -5,9 +5,10 @@ Below configuration about all the services necessary to deploy on AWS are outlin
 
 1. [AWS Resource Configuration](#aws-resource-configuration)
    1. [Certificate](#certificate)
-   2. [S3](#s3)
-   3. [VPC](#vpc)
-   4. [RDS](#rds)
+   2. [IAM Role](#iam-role)
+   3. [S3](#s3)
+   4. [VPC](#vpc)
+   5. [RDS](#rds)
 2. [Deploy with Claudia.js](#deploy-with-claudiajs)
    1. [Preparation](#preparation)
       1. [Configure Deploy Environment](#configure-deploy-environment)
@@ -31,17 +32,17 @@ Waiting for verification for a certificate may take a while so we will start tha
 
 ## IAM role
 
-An IAM role is one of the required arguments when deploying with Claudia. Go to the IAM console and click `roles` in the sidebar. Click Create Role, and choose the Lambda use case. Attach permissions policies `AWSLambdaFullAccess` and `AWSRDSFullAccess`. Name your role `SpokeOnLambda`.
+An IAM role is one of the required arguments when deploying with Claudia. Go to the IAM console and click "roles" in the sidebar. Click `Create Role`, and choose the Lambda use case. Attach permissions policies `AWSLambdaFullAccess` and `AWSRDSFullAccess`. Name your role `SpokeOnLambda`.
 
 ## S3
 
-Create a private S3 bucket by choosing all the default values as you go throuh the setup wizard. We will call this `textforcampaign`.
+Create a private S3 bucket by choosing all the default values as you go throuh the setup wizard. We will call this `textfor{campaign}`.
 
 ## VPC
 
 We will create a VPC with two groups of subnets, one publicly accessible one for the RDS instance and one private one for our AWS Lambda function (don't worry, the API Gateway created later will expose the function via the domain you created a certificate for). Each group will have two subnets for redundancy.
 
-Getting the VPC right is pretty tricky. Start by launching the VPC creation wizard and choosing "VPC with a Single Public Subnet". Give the VPC a name, `TextForCampaign`, and change the name of the subnet to `Public - 1`. Click create.
+Getting the VPC right is pretty tricky. Start by launching the VPC creation wizard and choosing "VPC with a Single Public Subnet". Give the VPC a name, `TextFor{Campaign}`, and change the name of the subnet to `Public - 1`. Click create.
 
 ### NAT Gateway
 
@@ -106,7 +107,7 @@ We will use the AWS RDS service for our Postgres database.
 
 ### Subnet Group
 
-Create a subnet group called `spoke_rds_group`. Choose the `TextForCampaign` VPC. Add our two public subnets to the group.
+Create a subnet group called `spoke_rds_group`. Choose the `TextFor{Campaign}` VPC. Add our two public subnets to the group.
 
 ### Postgres
 
@@ -261,7 +262,7 @@ database calls are not made. In AWS, the easiest way to do this is:
 
 ### Add a Custom Domain
 
-Once Claudia has created an API Gateway we can add a subdomain to access Spoke. Add the custom domain you created the certificate for, selecting that certificate. Add a mapping with a blank path and `spoke`:`latest` for the destination and path. Copy the custom API Gateway domain name and create an alias record in your DNS provider, routing the custom domain `spoke.{campaign}.com` to the API Gateway domain name.
+Once Claudia has created an API Gateway we can add a subdomain to access Spoke. Add the custom domain you created the certificate for, selecting that certificate. Add a mapping with a blank path and `spoke`:`latest` for the destination and path. Copy the custom API Gateway domain name and create an alias record in your DNS provider, routing the domain `spoke.{campaign}.com` to the custom API Gateway domain name.
 
 ## Updating Code or Environment Variables
 
