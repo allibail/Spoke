@@ -101,6 +101,15 @@ Create another security group called `Spoke - RDS` and description `Security gro
 | PostgreSQL (5432) | TCP (6)  | 5432       | 0.0.0.0/0 | Allow all DB access   |
 ```
 
+If you want to set up [caching](https://github.com/MoveOnOrg/Spoke/blob/main/docs/HOWTO_CONNECT_WITH_REDIS.md), create another security group called `Spoke - REDIS` and description `Security group for caching`. Edit the inbound rules to allow web access:
+
+```
+| Type        | Protocol | Port Range | Source    | Description            |
+|-------------|----------|------------|-----------|------------------------|
+| Custom TCP  | TCP (6)  | 6379       | 0.0.0.0/0 | Allow all cache access |
+| Custom TCP  | TCP (6)  | 6379       | ::/0      | Allow all cache access |
+```
+
 ## RDS
 
 We will use the AWS RDS service for our Postgres database.
