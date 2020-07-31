@@ -31,7 +31,7 @@ Waiting for verification for a certificate may take a while so we will start tha
 
 ## S3
 
-Create a private S3 bucket by choosing all the default values as you go throuh the setup wizard. We will call this `textforcampaign`.
+Create a private S3 bucket by choosing all the default values as you go through the setup wizard. We will call this `textforcampaign`.
 
 ## VPC
 
