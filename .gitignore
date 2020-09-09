@@ -7,6 +7,7 @@ rethinkdb_data
 .env
 __test__/test_data/*
 production-env.json
+staging-env.json
 claudia.json
 stage.json
 beta.json
